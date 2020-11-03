@@ -3,22 +3,13 @@
 #include <stdio.h>
 
 int main(int argc, char** argv) {
-
-
    lexer_t* lexer = lexer_new(argc, argv);
 
    token_t* token = (void*)0;
 
-   int i = 0;
-
    while((token = lexer_get_next_token(lexer)) != NULL)
    {
-      printf("Token(%d, %s)\n", token->type, token->value);  
-
-      i++;
-
-      if(i > 6)
-         break;
+      printf("Token(%s, \"%s\")\n", token_type_as_string(token), token->value);  
    }
 
    lexer_destroy(lexer);

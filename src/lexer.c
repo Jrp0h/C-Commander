@@ -53,6 +53,7 @@ lexer_t* lexer_copy(lexer_t* lexer) {
 void lexer_destroy(lexer_t* lexer){
   if(lexer == NULL)
     return;
+
   queue_destroy(lexer->queue);
   free(lexer);
 }
@@ -122,12 +123,20 @@ token_t* lexer_collect_long(lexer_t* lexer) {
   
   char* value = malloc(sizeof(char));
 
-  while(!lexer->EOL && !lexer->done)
+  while(!lexer->EOL && !lexer->done && lexer->c != '=')
   {
     char* s = lexer_get_current_char_as_string(lexer);
     value = realloc(value, (strlen(value) + strlen(s) + 1) * sizeof(char));
     strcat(value, s);
     lexer_advance(lexer);
+  }
+
+  // collect value from 
+  // --key="values with space value" or --key=value
+  if(lexer->c == '=')
+  {
+    lexer_advance(lexer);
+    queue_enqueue(lexer->queue, lexer_collect_value(lexer));
   }
 
   lexer->EOL = false;
@@ -137,10 +146,13 @@ token_t* lexer_collect_long(lexer_t* lexer) {
 
 token_t* lexer_collect_value(lexer_t* lexer) {
 
+  if(lexer->c == '"')
+    lexer_advance(lexer);
+
   char* value = malloc(sizeof(char));
   value[0] = '\0';
 
-  while(!lexer->EOL && !lexer->done)
+  while(!lexer->EOL && !lexer->done && lexer->c != '"')
   {
     char* s = lexer_get_current_char_as_string(lexer);
     value = realloc(value, (strlen(value) + strlen(s) + 1) * sizeof(char));
@@ -161,7 +173,6 @@ token_t* lexer_collect_short(lexer_t* lexer) {
 
   while(!lexer->EOL && !lexer->done)
   {
-    /* tokens = realloc(tokens, (++size) * sizeof(struct TOKEN_STRUCT)); */
     token_t* token = token_new(TOKEN_SHORT, lexer_get_current_char_as_string(lexer));
     queue_enqueue(lexer->queue, token);
     lexer_advance(lexer);

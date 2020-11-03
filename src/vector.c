@@ -27,6 +27,7 @@ void vector_destroy(vector_t* vector)
 {
   if(vector == NULL)
     return;
+
   free(vector->data);
   free(vector);
 }

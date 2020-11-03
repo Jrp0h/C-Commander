@@ -14,5 +14,6 @@ typedef struct TOKEN_STRUCT {
 token_t* token_new(int type, char* value);
 void token_destroy(token_t* token);
 
+char* token_type_as_string(token_t* token);
 #endif
 
